@@ -1,4 +1,3 @@
-
 const STORAGE_KEY = "universityScheduleData";
 const CLIPBOARD_KEY = "universityClipboard";
 const FIRST_VISIT_KEY = "firstVisit";
@@ -33,7 +32,6 @@ let initialSettings = loadPomodoroSettings();
 let pomodoroTimeLeft = initialSettings.work * 60;
 let pomodoroMode = "work";
 let scrollTimeout;
-
 
 const modal = document.getElementById("classModal");
 const form = document.getElementById("classForm");
@@ -344,8 +342,7 @@ function loadAndApplyCustomTimeSlots() {
 }
 
 function updateTimeSlot(thElement, oldTime, newTime) {
-  const colIndex =
-    Array.from(thElement.parentNode.children).indexOf(thElement);
+  const colIndex = Array.from(thElement.parentNode.children).indexOf(thElement);
 
   document.querySelectorAll(".schedule-table tbody tr").forEach((row) => {
     const cell = row.children[colIndex];
@@ -921,7 +918,8 @@ function addEditTimeSlotListeners() {
       const saveChanges = () => {
         const newTime = input.value.trim();
         const newSpan = document.createElement("span");
-        newSpan.textContent = newTime && newTime !== oldTime ? newTime : oldTime;
+        newSpan.textContent =
+          newTime && newTime !== oldTime ? newTime : oldTime;
         th.replaceChild(newSpan, input);
 
         if (newTime && newTime !== oldTime) {
@@ -950,8 +948,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".class-cell").forEach((c) => {
     addOverlay(c);
     addPasteButton(c);
-    c.addEventListener("mouseenter", () => (c.style.transform = "translateY(-2px)"));
-    c.addEventListener("mouseleave", () => (c.style.transform = "translateY(0)"));
+    c.addEventListener(
+      "mouseenter",
+      () => (c.style.transform = "translateY(-2px)")
+    );
+    c.addEventListener(
+      "mouseleave",
+      () => (c.style.transform = "translateY(0)")
+    );
   });
 
   document.querySelectorAll(".add-class-btn").forEach((btn) => {
@@ -998,17 +1002,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  document.querySelectorAll(".schedule-table tbody tr").forEach((row, index) => {
-    row.style.transitionDelay = `${index * 0.1}s`;
-  });
+  document
+    .querySelectorAll(".schedule-table tbody tr")
+    .forEach((row, index) => {
+      row.style.transitionDelay = `${index * 0.1}s`;
+    });
 
   const welcomeModal = document.getElementById("welcomeModal");
   const welcomeModalClose = document.getElementById("welcomeModalClose");
 
-  if (!localStorage.getItem(WELCOME_KEY)) {
-    welcomeModal.style.display = "block";
-    localStorage.setItem(WELCOME_KEY, "true");
-  }
+  welcomeModal.style.display = "block";
+  localStorage.setItem(WELCOME_KEY, "true");
 
   welcomeModalClose.onclick = function () {
     welcomeModal.style.display = "none";
@@ -1121,20 +1125,24 @@ categoryFilter.addEventListener("change", (e) => {
   currentCategory = e.target.value;
   renderTodos();
 });
-document.querySelector(".clear-todo-btn").addEventListener("click", function () {
-  if (confirm("آیا از پاک کردن تمام کارها مطمئن هستید؟")) {
-    todos = [];
-    saveTodos();
-    renderTodos();
-    showNotification("پاکسازی کارها", "تمام کارها با موفقیت پاک شدند");
-  }
-});
+document
+  .querySelector(".clear-todo-btn")
+  .addEventListener("click", function () {
+    if (confirm("آیا از پاک کردن تمام کارها مطمئن هستید؟")) {
+      todos = [];
+      saveTodos();
+      renderTodos();
+      showNotification("پاکسازی کارها", "تمام کارها با موفقیت پاک شدند");
+    }
+  });
 
 pomodoroStartBtn.addEventListener("click", () => {
   pomodoroRunning ? stopPomodoro() : startPomodoro();
 });
 pomodoroResetBtn.addEventListener("click", resetPomodoro);
-document.getElementById("clearStatsBtn").addEventListener("click", clearPomodoroStats);
+document
+  .getElementById("clearStatsBtn")
+  .addEventListener("click", clearPomodoroStats);
 pomodoroSettingsBtn.addEventListener("click", () => {
   const settings = loadPomodoroSettings();
   workDurationInput.value = settings.work;
