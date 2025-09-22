@@ -1012,8 +1012,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setTimeout(checkVisibility, 100);
 });
 
-window,
-  addEventListener("load", () => {
+window.addEventListener("load", () => {
     const welcomeModal = document.getElementById("welcomeModal");
     const welcomeModalClose = document.getElementById("welcomeModalClose");
 
