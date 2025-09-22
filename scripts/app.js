@@ -1011,7 +1011,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const welcomeModal = document.getElementById("welcomeModal");
   const welcomeModalClose = document.getElementById("welcomeModalClose");
 
-  welcomeModal.style.display = "block";
+  setTimeout(() => {
+    welcomeModal.style.display = "block";
+  }, 1500);
+
   localStorage.setItem(WELCOME_KEY, "true");
 
   welcomeModalClose.onclick = function () {
