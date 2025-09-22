@@ -1013,28 +1013,26 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.addEventListener("load", () => {
-    const welcomeModal = document.getElementById("welcomeModal");
-    const welcomeModalClose = document.getElementById("welcomeModalClose");
-
-    if (!localStorage.getItem(WELCOME_KEY)) {
-      welcomeModal.style.display = "block";
-      localStorage.setItem(WELCOME_KEY, "true");
-    }
-
-    welcomeModalClose.onclick = function () {
-      welcomeModal.style.display = "none";
-    };
-    window.addEventListener("click", function (event) {
-      if (event.target == welcomeModal) {
-        welcomeModal.style.display = "none";
-      }
-    });
-  });
-window.addEventListener("load", () => {
   if (!localStorage.getItem(FIRST_VISIT_KEY)) {
     localStorage.setItem(FIRST_VISIT_KEY, "true");
     setTimeout(showClassNotification, 2000);
   }
+  const welcomeModal = document.getElementById("welcomeModal");
+  const welcomeModalClose = document.getElementById("welcomeModalClose");
+
+  if (!localStorage.getItem(WELCOME_KEY)) {
+    welcomeModal.style.display = "block";
+    localStorage.setItem(WELCOME_KEY, "true");
+  }
+
+  welcomeModalClose.onclick = function () {
+    welcomeModal.style.display = "none";
+  };
+  window.addEventListener("click", function (event) {
+    if (event.target == welcomeModal) {
+      welcomeModal.style.display = "none";
+    }
+  });
   setInterval(showClassNotification, 60000);
   showClassNotification();
   updateNotificationIconVisibility();
