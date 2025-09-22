@@ -701,7 +701,7 @@ tr:last-child .day-header {
 .pomodoro-footer {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
 .todo-progress-container {
@@ -1882,4 +1882,10 @@ tr:last-child .day-header {
 .pomodoro-stats.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  background-color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
 }

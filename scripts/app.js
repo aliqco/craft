@@ -32,6 +32,7 @@ let initialSettings = loadPomodoroSettings();
 let pomodoroTimeLeft = initialSettings.work * 60;
 let pomodoroMode = "work";
 let scrollTimeout;
+let currentThElement = null;
 
 const modal = document.getElementById("classModal");
 const form = document.getElementById("classForm");
@@ -40,6 +41,12 @@ const unknownExamCheckbox = document.getElementById("unknownExam");
 const unknownRoomCheckbox = document.getElementById("unknownRoom");
 const examDateInput = document.getElementById("examDate");
 const roomNumberInput = document.getElementById("roomNumber");
+
+const timeModal = document.getElementById("editTimeModal");
+const startTimeInput = document.getElementById("startTimeInput");
+const endTimeInput = document.getElementById("endTimeInput");
+const saveTimeBtn = document.getElementById("saveTimeBtn");
+const timeModalCloseBtn = timeModal.querySelector(".close");
 
 const todoForm = document.querySelector(".todo-form");
 const todoInput = document.getElementById("todoInput");
@@ -811,31 +818,49 @@ function updateDateTime() {
     now.toLocaleDateString("fa-IR", options);
 }
 
+function toEnDigit(s) {
+  if (typeof s !== "string") return s;
+  return s.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+}
+
+function parseTimeToMinutes(timeStr) {
+  const cleanedStr = toEnDigit(timeStr.trim());
+  const parts = cleanedStr.split(":");
+  const hours = parseInt(parts[0], 10) || 0;
+  const minutes = parseInt(parts[1], 10) || 0;
+  if (isNaN(hours) || isNaN(minutes)) return NaN;
+  return hours * 60 + minutes;
+}
+
+function parseTimeRange(timeRangeStr) {
+  const parts = timeRangeStr.split("-").map((p) => p.trim());
+  if (parts.length !== 2) return null;
+
+  const start = parseTimeToMinutes(parts[0]);
+  const end = parseTimeToMinutes(parts[1]);
+
+  if (isNaN(start) || isNaN(end)) return null;
+
+  return { start, end };
+}
+
 function getCurrentTimeSlot() {
   const now = new Date();
   const currentTime = now.getHours() * 60 + now.getMinutes();
 
-  const timeSlots = {
-    "۷:۳۰ - ۹:۳۰": { start: 450, end: 570 },
-    "۹:۳۰ - ۱۱:۳۰": { start: 570, end: 690 },
-    "۱۳ - ۱۵": { start: 780, end: 900 },
-    "۱۵ - ۱۷": { start: 900, end: 1020 },
-    "۱۸ - ۲۰": { start: 1080, end: 1200 },
-  };
+  const timeHeaders = document.querySelectorAll(
+    ".time-header-cell:not(:first-child) span"
+  );
 
-  const currentHeaders = Array.from(
-    document.querySelectorAll(".time-header-cell:not(:first-child) span")
-  ).map((s) => s.textContent);
+  for (const header of timeHeaders) {
+    const timeText = header.textContent;
+    const slot = parseTimeRange(timeText);
 
-  for (const timeText of currentHeaders) {
-    const key = Object.keys(timeSlots).find((k) => k === timeText);
-    if (key) {
-      const slot = timeSlots[key];
-      if (currentTime >= slot.start && currentTime < slot.end) {
-        return key;
-      }
+    if (slot && currentTime >= slot.start && currentTime < slot.end) {
+      return timeText;
     }
   }
+
   return null;
 }
 
@@ -903,40 +928,16 @@ function checkVisibility() {
 function addEditTimeSlotListeners() {
   document.querySelectorAll(".edit-time-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      const th = e.target.closest(".time-header-cell");
-      const span = th.querySelector("span");
-      const oldTime = span.textContent.trim();
+      currentThElement = e.target.closest(".time-header-cell");
+      const span = currentThElement.querySelector("span");
+      const currentTime = span.textContent.trim();
+      const [start, end] = currentTime.split(" - ");
 
-      const input = document.createElement("input");
-      input.type = "text";
-      input.value = oldTime;
+      startTimeInput.value = start ? start.trim() : "";
+      endTimeInput.value = end ? end.trim() : "";
 
-      th.replaceChild(input, span);
-      input.focus();
-      input.select();
-
-      const saveChanges = () => {
-        const newTime = input.value.trim();
-        const newSpan = document.createElement("span");
-        newSpan.textContent =
-          newTime && newTime !== oldTime ? newTime : oldTime;
-        th.replaceChild(newSpan, input);
-
-        if (newTime && newTime !== oldTime) {
-          updateTimeSlot(th, oldTime, newTime);
-        }
-      };
-
-      input.addEventListener("blur", saveChanges);
-      input.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          input.blur();
-        } else if (event.key === "Escape") {
-          const originalSpan = document.createElement("span");
-          originalSpan.textContent = oldTime;
-          th.replaceChild(originalSpan, input);
-        }
-      });
+      timeModal.style.display = "block";
+      startTimeInput.focus();
     });
   });
 }
@@ -1011,9 +1012,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const welcomeModal = document.getElementById("welcomeModal");
   const welcomeModalClose = document.getElementById("welcomeModalClose");
 
-  setTimeout(() => {
+  if (!localStorage.getItem(WELCOME_KEY)) {
     welcomeModal.style.display = "block";
-  }, 1500);
+    localStorage.setItem(WELCOME_KEY, "true");
+  }
 
   localStorage.setItem(WELCOME_KEY, "true");
 
@@ -1028,6 +1030,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   addEditTimeSlotListeners();
   setTimeout(checkVisibility, 100);
+
+  saveTimeBtn.addEventListener("click", () => {
+    const newStart = startTimeInput.value.trim();
+    const newEnd = endTimeInput.value.trim();
+
+    if (newStart && newEnd && currentThElement) {
+      const oldTime = currentThElement.querySelector("span").textContent;
+      const newTime = `${newStart} - ${newEnd}`;
+
+      if (oldTime !== newTime) {
+        currentThElement.querySelector("span").textContent = newTime;
+        updateTimeSlot(currentThElement, oldTime, newTime);
+      }
+      timeModal.style.display = "none";
+    } else {
+      alert("لطفا هر دو زمان شروع و پایان را وارد کنید.");
+    }
+  });
+
+  timeModalCloseBtn.onclick = () => {
+    timeModal.style.display = "none";
+  };
 });
 
 window.addEventListener("load", () => {
@@ -1052,7 +1076,10 @@ window.addEventListener("scroll", () => {
 });
 window.addEventListener("resize", checkVisibility);
 window.onclick = (e) => {
-  if (e.target === modal) closeModal();
+  if (e.target === modal || e.target === timeModal) {
+    closeModal();
+    timeModal.style.display = "none";
+  }
 };
 
 form.addEventListener("submit", (e) => {
