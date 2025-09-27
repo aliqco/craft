@@ -1294,6 +1294,7 @@ tr:last-child .day-header {
 .pomodoro-info {
   display: block;
   text-align: center;
+  font-size: 14px;
 }
 .pomodoro-major {
   display: flex;
