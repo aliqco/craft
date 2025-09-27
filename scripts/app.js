@@ -281,7 +281,7 @@ function addPasteButton(cell) {
   if (cell.querySelector(".paste-empty-btn")) return;
   if (!clipboard) return;
   const pasteBtn = document.createElement("button");
-  pasteBtn.textContent = "الصاق";
+  pasteBtn.textContent = "چسباندن";
   pasteBtn.className = "paste-empty-btn";
   pasteBtn.onclick = (e) => {
     e.stopPropagation();
